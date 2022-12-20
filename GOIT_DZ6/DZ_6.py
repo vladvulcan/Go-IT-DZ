@@ -84,5 +84,4 @@ def normalize(name):
     return translit
 
 
-print(sort_trash(trash))
-# sort_trash(x)
+sort_trash(x)
