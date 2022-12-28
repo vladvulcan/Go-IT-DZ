@@ -1,7 +1,6 @@
 import shutil
 from pathlib import Path
 import sys
-trash = r'C:\Users\User\Documents\Python\trash'
 unknown_ext = set()
 known_ext = set()
 x = sys.argv[0]
@@ -65,11 +64,7 @@ def sort_trash(folder):
                 files_by_ext[dst].append(f.name)
                 shutil.move(f,dst_dir)
 
-    # sort_trash(f)
-
-                # if not any(f.parent.iterdir()):
-                #     f.parent.rmdir()
-                #     continue
+   
                 
     return files_by_ext,known_ext,unknown_ext
 
