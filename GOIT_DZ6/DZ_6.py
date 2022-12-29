@@ -12,6 +12,8 @@ TRANS = {}
 for i, j in zip(CYRILLIC_SYMBOLS, TRANSLATION):
     TRANS[ord(i)] = j
     TRANS[ord(i.upper())] = j.upper()
+
+
 def sort_trash(folder):
     global unknown_ext,known_ext
     target = Path(folder)
@@ -32,41 +34,51 @@ def sort_trash(folder):
             else:
                 sort_trash(f)
         else:
-            ext = f.suffix
-            ext = ext.upper()
-            dst =''
-            if ext in ['.ZIP', '.GZ', '.TAR','.RAR', '.7Z']:
-                dst = 'archives'
-                known_ext.add(ext)
-                files_by_ext[dst].append(f.name)
-                dot = f.name.index('.')
-                subfolder = Path(f.name[:dot])
-                dst_dir = target.joinpath(subfolder,dst)
-                subfolder.mkdir(parents=True, exist_ok=True)
+            dst = sort_files_by_extensions(f, target, folder)
+            if dst == 'archives':
+                continue
+            elif len(dst) != 0:
+                dst_dir = target.joinpath(folder, dst)
                 dst_dir.mkdir(parents=True, exist_ok=True)
-                shutil.unpack_archive(f,subfolder)
-                shutil.move(subfolder,dst_dir)
-                f.unlink(missing_ok=True)
+                files_by_ext[dst].append(f.name)
+                shutil.move(f, dst_dir)
             else:
-                if ext in ['.JPEG', '.PNG', '.JPG', '.SVG']:
-                    dst = 'images'
-                elif ext in ['.AVI', '.MP4', '.MOV', '.MKV']:
-                    dst = 'video'
-                elif ext in ['.DOC', '.DOCX', '.TXT', '.PDF', '.XLS','.XLSX', '.PPTX']:
-                    dst = 'documents'
-                elif ext in ['.MP3', '.OGG', '.WAV', '.AMR','.M4A']:
-                    dst = 'music'
-                else:
-                    unknown_ext.add(ext)
-                    continue
-                known_ext.add(ext)
-                dst_dir = target.joinpath(folder,dst)
-                dst_dir.mkdir(parents=True, exist_ok=True)
-                files_by_ext[dst].append(f.name)
-                shutil.move(f,dst_dir)
-
-
+                continue
     return files_by_ext,known_ext,unknown_ext
+
+
+def sort_files_by_extensions(file, target, folder):
+    global known_ext, files_by_ext, unknown_ext
+    ext = file.suffix
+    ext = ext.upper()
+    dst = ''
+    if ext in ['.ZIP', '.GZ', '.TAR', '.RAR', '.7Z']:
+        dst = 'archives'
+        known_ext.add(ext)
+        files_by_ext[dst].append(file.name)
+        dot = file.name.index('.')
+        subfolder = Path(file.name[:dot])
+        dst_dir = target.joinpath(subfolder, dst)
+        subfolder.mkdir(parents=True, exist_ok=True)
+        dst_dir.mkdir(parents=True, exist_ok=True)
+        shutil.unpack_archive(file, subfolder)
+        shutil.move(subfolder, dst_dir)
+        file.unlink(missing_ok=True)
+    else:
+        if ext in ['.JPEG', '.PNG', '.JPG', '.SVG']:
+            dst = 'images'
+        elif ext in ['.AVI', '.MP4', '.MOV', '.MKV']:
+            dst = 'video'
+        elif ext in ['.DOC', '.DOCX', '.TXT', '.PDF', '.XLS', '.XLSX', '.PPTX']:
+            dst = 'documents'
+        elif ext in ['.MP3', '.OGG', '.WAV', '.AMR', '.M4A']:
+            dst = 'music'
+        else:
+            unknown_ext.add(ext)
+            pass
+        known_ext.add(ext)
+    return dst
+
 
 def normalize(name):
     global TRANS
