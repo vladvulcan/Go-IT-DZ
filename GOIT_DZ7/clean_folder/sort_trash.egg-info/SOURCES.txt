@@ -1,0 +1,9 @@
+README.md
+setup.py
+clean_folder/__init__.py
+clean_folder/clean.py
+sort_trash.egg-info/PKG-INFO
+sort_trash.egg-info/SOURCES.txt
+sort_trash.egg-info/dependency_links.txt
+sort_trash.egg-info/entry_points.txt
+sort_trash.egg-info/top_level.txt

@@ -46,7 +46,12 @@ def sort_trash(folder):
                 shutil.move(f, dst_dir)
             else:
                 continue
-    return files_by_ext,known_ext,unknown_ext
+    FBE = f'Результат сортировки: {files_by_ext}'
+    KE = f'Известные расширения: {known_ext}'
+    UE = f'Неизвестные расширения: {unknown_ext}'
+    print (FBE)
+    print (KE)
+    print (UE)
 
 
 def sort_files_by_extensions(file, target, folder):
@@ -95,4 +100,5 @@ def normalize(name):
 
 if __name__ == '__main__':
     main()
+    print ('Папка отсортирована')
     exit()
