@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 current_date = datetime.now().date()
 
 users = [
-    {"name": 'Vladimir','birthday':datetime(year=1996,month=1,day=24)},
+    {"name": 'Vladimir','birthday':datetime(year=1996,month=1,day=23)},
     {"name": 'Igor','birthday':datetime(year=1968,month=1,day=24)},
     {"name": 'Marianne','birthday':datetime(year=1967,month=1,day=25)},
     {"name": 'Diane','birthday':datetime(year=1967,month=1,day=26)},
@@ -36,7 +36,8 @@ def get_birthdays_per_week(users,date=current_date):
                 count = 1
                 names.clear()
             if count >1:
-                names.append(bdays[bday])
+                if len(names) == 0:
+                    names.append(bdays[bday])
                 names.append(name)
                 bdays[bday] = ', '.join(names)
             else:
@@ -49,5 +50,5 @@ def get_birthdays_per_week(users,date=current_date):
         print(message)
 
     
-# date = '14 october 2023'
-get_birthdays_per_week(users)
+date = '22 January 2023'
+get_birthdays_per_week(users,date)
