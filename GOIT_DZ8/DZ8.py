@@ -1,4 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timedelta
+
+current_date = datetime.now().date()
+one_week = timedelta(weeks=1)
+next_date = current_date + one_week
+timediff = next_date - current_date
 
 users = [
     {"name": 'Vladimir','birthday':datetime(year=1996,month=7,day=12)},
@@ -11,8 +16,18 @@ users = [
 
 def get_birthdays_per_week(users):
     weekdays = {0: 'Monday',1:'Tuesday',2:'Wednesday',3:'Thursday',4:'Friday',5:'Saturday',6:'Sunday'}
+    users_by_day = []
     for user in users:
-        day = (user['birthday'].weekday())
-    return(weekdays[day])
+        name = user['name']
+        bd2023 = datetime(year=2023,month=user['birthday'].month,day=user['birthday'].day).date()
+        to_birthday = bd2023-current_date
+        if to_birthday <= timediff:
+            bday = bd2023.weekday()
+            bday = weekdays[bday]
+            print(f'{name}: {bday}')
 
-print (get_birthdays_per_week(users))
+    
+
+    
+
+get_birthdays_per_week(users)
