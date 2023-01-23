@@ -19,19 +19,28 @@ def get_birthdays_per_week(users,date=current_date):
     message = "Don't forget to congratulate on "
     start = len(message)
     bdays = {}
-    for user in users:
-        name = user['name']
+    names = []
+    count = 1
+    for user in users:        
         bd2023 = datetime(year=2023,month=user['birthday'].month,day=user['birthday'].day).date()
         to_birthday = bd2023-date
-        if to_birthday <= one_week and to_birthday.days > 0:            
+        if to_birthday <= one_week and to_birthday.days > 0:
+            name = user['name']            
             bday = bd2023.strftime('%A')            
             if bday in ['Saturday','Sunday']:
-                bday = 'Monday'
-            
-            names = []
-            names.append(name)
-            names_str = ', '.join(names)
-            bdays[bday] = names_str
+                bday = 'Monday'          
+                        
+            if bday in bdays:
+                count += 1
+            else:
+                count = 1
+                names.clear()
+            if count >1:
+                names.append(bdays[bday])
+                names.append(name)
+                bdays[bday] = ', '.join(names)
+            else:
+                bdays[bday] = name
             
     for day, names in bdays.items():
         message += f'{day}: {names}\n'
