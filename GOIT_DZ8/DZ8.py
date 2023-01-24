@@ -22,11 +22,11 @@ def get_birthdays_per_week(users,date=current_date):
     names = []
     count = 1
     for user in users:        
-        bd2023 = datetime(year=2023,month=user['birthday'].month,day=user['birthday'].day).date()
-        to_birthday = bd2023-date
+        next_bd = datetime(year=date.year,month=user['birthday'].month,day=user['birthday'].day).date()
+        to_birthday = next_bd-date
         if to_birthday <= one_week and to_birthday.days > 0:
             name = user['name']            
-            bday = bd2023.strftime('%A')            
+            bday = next_bd.strftime('%A')            
             if bday in ['Saturday','Sunday']:
                 bday = 'Monday'          
                         
@@ -36,19 +36,19 @@ def get_birthdays_per_week(users,date=current_date):
                 count = 1
                 names.clear()
             if count >1:
-                if len(names) == 0:
+                if not names:
                     names.append(bdays[bday])
                 names.append(name)
                 bdays[bday] = ', '.join(names)
             else:
                 bdays[bday] = name
             
-    for day, names in bdays.items():
+    for day, names in bdays.items(): 
         message += f'{day}: {names}\n'
             
     if len(message) > start:
         print(message)
 
     
-date = '22 January 2023'
+date = '22 January 2024'
 get_birthdays_per_week(users,date)
