@@ -22,11 +22,14 @@ def get_birthdays_per_week(users,date=current_date):
     bdays = {}
     names = []
     count = 1
+    ages = {}
     for user in users:        
         next_bd = datetime(year=date.year,month=user['birthday'].month,day=user['birthday'].day).date()
         to_birthday = next_bd-date
         if to_birthday <= one_week and to_birthday.days > 0:
-            name = user['name']            
+            name = user['name']
+            age = (next_bd - user['birthday'].date()).days
+            ages[name] = int(age/365)
             bday = next_bd.strftime('%A')            
             if bday in ['Saturday','Sunday']:
                 bday = 'Monday'          
@@ -44,8 +47,11 @@ def get_birthdays_per_week(users,date=current_date):
             else:
                 bdays[bday] = name
             
-    for day, names in bdays.items(): 
+    for day, names,  in bdays.items(): 
         message += f'{day}: {names}\n'
+    
+    for name, age in ages.items():
+        print (f'{name}: {age}')
             
     if len(message) > start:
         print(message)
