@@ -2,24 +2,24 @@ memory = {}
 name = ''
 phone_number = ''
 
-# def input_error(func):
-#     def inner():
-#         try:
-#             res = func()
-#             return res
+def input_error(func):
+    def inner(command):
+        try:
+            res = func(command)
+            return res
 
-#         except KeyError:
-#             print ('Enter user name')
+        except KeyError:
+            print ("No such name")
         
-#         except ValueError:
-#             print ('Error')
+        except ValueError:
+            print ('Invalid value')
 
-#         except IndexError:
-#             print ('Error')
+        except IndexError:
+            print ('Name is given, but phone number is not')
 
-#     return inner
+    return inner
 
-# @input_error
+
 def main():
     while True:
         command = input('enter command: ')
@@ -34,7 +34,7 @@ def main():
         elif command.startswith('add'):            
             add_command = command.removeprefix('add')
             if len(add_command)>0:
-                print (add(add_command))
+                add(add_command)
             else:
                 print ("Give me name and phone please")
             
@@ -42,7 +42,7 @@ def main():
         elif command.startswith('change'):
             change_command = command.removeprefix('change')
             if len(change_command)>0:
-                print (change(change_command))
+                change(change_command)
             else:
                 print ("Give me name and phone please")
             
@@ -64,38 +64,40 @@ def main():
 
         elif command == 'help':
             help = '''
-            Список доступных команд:
-            "hello" - бот отвечает "How can I help you?"
+Список доступных команд:
+"hello" - бот отвечает "How can I help you?"
 "add ..." -   бот сохраняет в памяти новый контакт. Вместо ... введите имя и номер телефона через пробел.
 "change ..." - бот сохраняет в памяти новый номер телефона для существующего контакта. Вместо ... введите имя и номер телефона.
 "phone ..." - бот выводит в консоль номер телефона для указанного контакта. Вместо ... введите имя пользователя через пробел.
-"show all" - бот выводит все сохраненные контакты с номерами телефонов в консоль в формате "Имя: телефон.
+"show all" - бот выводит все сохраненные контакты с номерами телефонов в консоль в формате "Имя: телефон".
 "good bye", "close", "exit" - бот пишет "Good bye!" и завершает свою работу.
             '''
             print (help)
 
         else:
-            print ('Invalid command. Try again')
+            print ('''Invalid command. Try again.
+For the list of available commands type "help"
+            ''')
             continue
 
-
+@input_error
 def add(command: str):    
     global memory
     name_phone = command.split()
     name, phone_number = name_phone[0], name_phone[1]        
     memory[name] = phone_number
-    return f'Added to memory: Name - {name}, phone - {phone_number}'
+    print (f'Added to memory: Name - {name}, phone - {phone_number}')
     
-
+@input_error
 def change(command: str):
     global memory
     name_phone = command.split()
     name, new_phone_number = name_phone[0], name_phone[1]    
-    if name in memory:
-        memory[name] = new_phone_number
-        return f'Changed in memory: Name - {name}, new phone - {new_phone_number}'
-    else:
-        print ("no such name")
+    old_number = memory[name]
+    memory[name] = new_phone_number
+    print (f'Changed in memory: Name - {name}, new phone - {new_phone_number}')
+    
+
 
 if __name__ == '__main__':
     main()
