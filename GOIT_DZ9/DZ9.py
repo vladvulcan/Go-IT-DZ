@@ -9,15 +9,15 @@ def input_error(func):
             return res
 
         except KeyError:
-            return ("No such name")        
+            print ("No such name")
         
-        except ValueError as msg:
-            return (msg)
+        except ValueError:
+            print ('Invalid value')
 
         except IndexError:
-            return ('Name is given, but phone number is not')
+            print ('Name is given, but phone number is not')
 
-    print (inner)
+    return inner
 
 
 def main():
@@ -50,7 +50,7 @@ def main():
         elif command.startswith('phone'):
             name = command.removeprefix('phone')
             if len(name)>0:
-                print (memory.get(name,"No such name"))
+                print (memory.get(name,"Error"))
             else:
                 print("Enter user name")
 
@@ -75,20 +75,16 @@ def main():
             print (help)
 
         else:
-            print(
-            '''Invalid command. Try again.
-For the list of available commands type "help"''')
+            print ('''Invalid command. Try again.
+For the list of available commands type "help"
+            ''')
             continue
 
 @input_error
 def add(command: str):    
     global memory
     name_phone = command.split()
-    name, phone_number = name_phone[0], name_phone[1]
-    if not isinstance(name,str):
-        raise ValueError('Name must be a string')
-    if not isinstance(phone_number,int):
-        raise ValueError('Number must be int')
+    name, phone_number = name_phone[0], name_phone[1]        
     memory[name] = phone_number
     print (f'Added to memory: Name - {name}, phone - {phone_number}')
     
@@ -100,7 +96,7 @@ def change(command: str):
     old_number = memory[name]
     memory[name] = new_phone_number
     print (f'Changed in memory: Name - {name}, new phone - {new_phone_number}')
-  
+    
 
 
 if __name__ == '__main__':
