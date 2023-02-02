@@ -1,6 +1,4 @@
 memory = {}
-name = ''
-phone_number = ''
 
 def input_error(func):
     def inner(command):
@@ -48,9 +46,9 @@ def main():
             
         
         elif command.startswith('phone'):
-            name = command.removeprefix('phone')
-            if len(name)>0:
-                print (memory.get(name,"Error"))
+            search_command = command.removeprefix('phone')
+            if len(search_command)>0:
+                search(search_command)
             else:
                 print("Enter user name")
 
@@ -70,7 +68,7 @@ def main():
 "change ..." - бот сохраняет в памяти новый номер телефона для существующего контакта. Вместо ... введите имя и номер телефона.
 "phone ..." - бот выводит в консоль номер телефона для указанного контакта. Вместо ... введите имя пользователя через пробел.
 "show all" - бот выводит все сохраненные контакты с номерами телефонов в консоль в формате "Имя: телефон".
-"good bye", "close", "exit" - бот пишет "Good bye!" и завершает свою работу.
+"goodbye", "close", "exit" - бот пишет "Good bye!" и завершает свою работу.
             '''
             print (help)
 
@@ -96,6 +94,12 @@ def change(command: str):
     old_number = memory[name]
     memory[name] = new_phone_number
     print (f'Changed in memory: Name - {name}, new phone - {new_phone_number}')
+
+@input_error
+def search(command: str):
+    global memory
+    name = command.removeprefix(' ')
+    print (memory.get(name,"No such name"))
     
 
 
