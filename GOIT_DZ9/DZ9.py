@@ -114,6 +114,8 @@ def main():
         if user_input == '.':
             break
         result = parser(user_input)
+        if user_input == 'phone' and result == 'Give me name and phone please':
+            result = 'Give me name please'
         print (result)
         if result == 'Good bye!':
             break        
