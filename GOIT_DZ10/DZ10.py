@@ -70,6 +70,21 @@ class Record:
         message = f'Changed in memory: Name - {self.name}, new phone - {self.new_phone_number}'
         return message
 
+
+class Field:
+    pass
+
+
+class Name(Field):
+    def __init__(self, name):
+        self.name = name
+
+
+class Phone(Field):
+    def __init__(self, phone):
+        self.phone = phone
+
+
 @input_error
 def get_users_phone(command: str):
     name = command[1:]
@@ -90,8 +105,8 @@ COMMANDS_DICT = {
     'exit': say_goodbye,
     'close': say_goodbye,
     'good bye': say_goodbye,
-    'add': add_new_user,
-    'change': change_existing_users_phone,
+    'add': Record.add_new_user,
+    'change': Record.change_existing_users_phone,
     'phone': get_users_phone,
     'show all': get_database
 }
