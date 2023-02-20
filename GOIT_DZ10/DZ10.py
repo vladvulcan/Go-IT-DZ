@@ -1,6 +1,8 @@
 from collections import UserDict
 class AddressBook(UserDict):
-    pass
+    def add_record(self, data):
+        self.data = data
+
     
 memory = AddressBook()
 
@@ -44,6 +46,7 @@ def show_help():
     return help
 
 class Record:
+   
     @input_error
     def add_new_user(self, command: str):
         self.name_phone = command[1:].split()
