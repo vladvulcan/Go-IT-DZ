@@ -2,6 +2,11 @@ from collections import UserDict
 class AddressBook(UserDict):
     def add_record(self, data):
         self.data = data
+        return Record.add_new_user
+    
+    def change_record(self, data):
+        self.data = data
+        return Record.change_existing_users_phone
 
     
 memory = AddressBook()
@@ -16,7 +21,7 @@ def input_error(func):
             return "No such name"
         
         except ValueError as err:
-            return err
+            return err.args[0]
 
         except IndexError:
             return 'Name is given, but phone number is not'
@@ -108,8 +113,8 @@ COMMANDS_DICT = {
     'exit': say_goodbye,
     'close': say_goodbye,
     'good bye': say_goodbye,
-    'add': Record.add_new_user,
-    'change': Record.change_existing_users_phone,
+    'add': memory.add_record,
+    'change': memory.change_record,
     'phone': get_users_phone,
     'show all': get_database
 }
