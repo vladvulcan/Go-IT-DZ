@@ -1,15 +1,5 @@
-from collections import UserDict
-class AddressBook(UserDict):
-    def add_record(self, data):
-        self.data = data
-        return Record.add_new_user
-    
-    def change_record(self, data):
-        self.data = data
-        return Record.change_existing_users_phone
+from collections import UserDict   
 
-    
-memory = AddressBook()
 
 def input_error(func):
     def inner(*args, **kwargs):
@@ -31,8 +21,58 @@ def input_error(func):
 
     return inner
 
-@input_error
-def say_hello():
+
+class Field:
+    def __init__(self, value):
+        self.value = value
+
+
+class Name(Field):
+    pass
+
+
+class Phone(Field):
+    pass
+
+class Record:
+    def __init__(self, name):
+        self.name = Name(name)
+        self.phones = []
+
+    def add_phone(self, phone): 
+       self.phones.append(Phone(phone).value)
+
+    def clear_phones(self): 
+        self.phones.clear()
+
+        
+
+class AddressBook(UserDict):
+    def add_record(self, record: Record):
+        self.data[record.name.value] = record
+
+    def update_record(self,name,phone):
+       self.data[name].add_phone(phone)
+
+    def get_phones(self,name):
+        return self.data[name].phones
+    
+    def remove_record(self, name):
+        del self.data[name]
+    
+    def clear_phones(self, name):
+        self.data[name].clear_phones()
+
+   
+
+    
+    
+    
+ 
+memory = AddressBook()          
+
+
+def say_hello(): 
     return 'How can I help you?'
 
 def say_goodbye():
@@ -50,60 +90,61 @@ def show_help():
 '''
     return help
 
-class Record:
-   
-    @input_error
-    def add_new_user(self, command: str):
-        self.name_phone = command[1:].split()
-        self.name, self.phone_number = self.name_phone[0], self.name_phone[1]
-        if not self.name.isalpha():
-            raise ValueError('Name must be a text, not number')
-        if not self.phone_number.isdecimal():
-            raise ValueError('Numbers-only phones are allowed')
-        if self.name in memory:
-            raise ValueError(f'This name already exists.\nType "phone {self.name}" to see the number linked to it.')
-        else: memory[self.name] = self.phone_number
-        message = f'Added to memory: Name - {self.name}, phone - {self.phone_number}'
-        return message
+
+@input_error
+def add_new_user(command: str):
+    name_phone = command[1:].split()
+    if not name_phone[0].isalpha():
+        raise ValueError('Name must be a text, not number')
+    if not name_phone[1].isdecimal():
+        raise ValueError('Numbers-only phones are allowed')
+    new_user = Record(name_phone[0])
+    if new_user.name.value in memory:
+        raise ValueError(f'This name already exists.\nType "phone {name_phone[0]}" to see the number linked to it.')    
+    else:        
+        new_user.add_phone(name_phone[1])    
+        memory.add_record(new_user)
+    message = f'Added to memory: Name - {name_phone[0]}, phone - {name_phone[1]}'
+    return message
     
-    @input_error
-    def change_existing_users_phone(self, command: str):
-        self.name_phone = command[1:].split()
-        self.name, self.new_phone_number = self.name_phone[0], self.name_phone[1]
-        if not self.new_phone_number.isdecimal():
-            raise ValueError('Numbers-only phones are allowed')    
-        if not self.name in memory:
-            raise KeyError
-        memory[self.name] = self.new_phone_number
-        message = f'Changed in memory: Name - {self.name}, new phone - {self.new_phone_number}'
-        return message
+@input_error
+def update_user(command: str):
+    name_phone = command[1:].split()
+    name, new_phone_number = name_phone[0], name_phone[1]
+    if not new_phone_number.isdecimal():
+        raise ValueError('Numbers-only phones are allowed')
+    memory.update_record(name, new_phone_number)
+    message = f'Changed in memory: Name - {name}, new phone - {new_phone_number}'
+    return message
 
-
-class Field:
-    pass
-
-
-class Name(Field):
-    def __init__(self, name):
-        self.name = name
-
-
-class Phone(Field):
-    def __init__(self, phone):
-        self.phone = phone
+@input_error
+def delete_user(command: str):
+    name = command[1:]
+    confirm = input(f'This will delete the user {name}. Proceed? (Y/N)\n')
+    if confirm == 'Y':
+        memory.clear_phones(name)
+    return f'User "{name}" deleted successfully'
 
 
 @input_error
 def get_users_phone(command: str):
     name = command[1:]
-    return memory[name]
+    return memory.get_phones(name)
 
 @input_error
 def get_database():
     contacts = ''
-    for key, value in memory.items():
-         contacts += f'{key} : {value} \n'
+    for key, value in memory.data.items():
+         contacts += f'{key} : {value.phones} \n'
     return contacts
+
+@input_error
+def delete_all_phones(command: str):
+    name = command[1:]
+    confirm = input(f'This will delete all the phones for existing user {name}. Proceed? (Y/N)\n')
+    if confirm == 'Y':
+        memory.remove_record(name)
+    return f'User "{name}" cleared successfully'
 
 
 
@@ -113,10 +154,13 @@ COMMANDS_DICT = {
     'exit': say_goodbye,
     'close': say_goodbye,
     'good bye': say_goodbye,
-    'add': memory.add_record,
-    'change': memory.change_record,
+    'add': add_new_user,
+    'change': update_user,
     'phone': get_users_phone,
-    'show all': get_database
+    'show all': get_database,
+    'clear': delete_all_phones,
+    'delete': delete_user
+    
 }
 
 
