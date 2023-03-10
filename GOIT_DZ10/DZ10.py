@@ -45,6 +45,13 @@ class Record:
     def clear_phones(self): 
         self.phones.clear()
 
+    def delete_phone(self, phone):
+        self.phones.remove(phone)
+
+    def find_phone(self, phone):
+        return phone in self.phones
+
+
         
 
 class AddressBook(UserDict):
@@ -62,6 +69,14 @@ class AddressBook(UserDict):
     
     def clear_phones(self, name):
         self.data[name].clear_phones()
+
+    def delete_phone(self, name, phone):
+        if self.data[name].find_phone(phone):
+            self.data[name].delete_phone(phone)
+    
+    
+
+        
 
    
 
@@ -118,12 +133,15 @@ def update_user(command: str):
     return message
 
 @input_error
-def delete_user(command: str):
+def clear_user(command: str):
     name = command[1:]
-    confirm = input(f'This will delete the user {name}. Proceed? (Y/N)\n')
-    if confirm == 'Y':
+    confirm = input(f'This will delete all the phones for existing user {name}. Proceed? (Y/N)\n')
+    if confirm.lower() == 'y':
         memory.clear_phones(name)
-    return f'User "{name}" deleted successfully'
+        message = f'User "{name}" cleared successfully'
+    else:
+        message = "Action is aborted"
+    return message
 
 
 @input_error
@@ -139,12 +157,25 @@ def get_database():
     return contacts
 
 @input_error
-def delete_all_phones(command: str):
+def delete_user(command: str):
     name = command[1:]
-    confirm = input(f'This will delete all the phones for existing user {name}. Proceed? (Y/N)\n')
-    if confirm == 'Y':
+    confirm = input(f'This will delete the user {name}. Proceed? (Y/N)\n')
+    if confirm.lower() == 'y':
         memory.remove_record(name)
-    return f'User "{name}" cleared successfully'
+        message = f'User "{name}" deleted successfully'
+    else:
+        message = "Action is aborted"
+    return message
+
+@input_error
+def delete_phone(command: str):
+    name_phone = command[1:].split()
+    name, phone_number = name_phone[0], name_phone[1]
+    memory.delete_phone(name, phone_number)
+    return "Phone deleted successfully"
+
+
+    
 
 
 
@@ -154,13 +185,14 @@ COMMANDS_DICT = {
     'exit': say_goodbye,
     'close': say_goodbye,
     'good bye': say_goodbye,
+    'stop': say_goodbye,
     'add': add_new_user,
     'change': update_user,
     'phone': get_users_phone,
     'show all': get_database,
-    'clear': delete_all_phones,
-    'delete': delete_user
-    
+    'clear': clear_user,
+    'delete': delete_user,
+    'del phone': delete_phone
 }
 
 
