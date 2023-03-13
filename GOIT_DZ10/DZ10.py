@@ -40,16 +40,21 @@ class Record:
         self.phones = []
 
     def add_phone(self, phone): 
-       self.phones.append(Phone(phone).value)
+       self.phones.append(Phone(phone))
 
     def clear_phones(self): 
         self.phones.clear()
 
     def delete_phone(self, phone):
-        self.phones.remove(phone)
+        for x in self.phones:
+            if x.value == phone:
+                self.phones.remove(x)
+                return True
+        return False
 
     def find_phone(self, phone):
-        return phone in self.phones
+        for i in self.phones:
+            return True if i.value == phone else False
 
 
         
