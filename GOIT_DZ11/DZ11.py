@@ -1,5 +1,5 @@
-from collections import UserDict   
-
+from collections import UserDict
+from datetime import datetime
 
 def input_error(func):
     def inner(*args, **kwargs):
@@ -16,7 +16,7 @@ def input_error(func):
         except IndexError:
             return 'Name is given, but phone number is not'
         
-        except TypeError:
+        # except TypeError:
             return "Give me name and phone please"
 
     return inner
@@ -34,10 +34,16 @@ class Name(Field):
 class Phone(Field):
     pass
 
+class Birthday(Field):
+    def __init__(self, birthday):
+        self.birthday = datetime.strptime(birthday,"%Y-%m-%d").date()
+
 class Record:
-    def __init__(self, name):
+    def __init__(self, name, birthday = None):
         self.name = Name(name)
         self.phones = []
+        if birthday:
+            self.birthday = Birthday(birthday)
 
     def add_phone(self, phone): 
        self.phones.append(Phone(phone))
@@ -55,6 +61,15 @@ class Record:
     def find_phone(self, phone):
         for i in self.phones:
             return True if i.value == phone else False
+    
+    def days_to_birthday(self):
+        curdate = datetime.today().date()
+        self.next_bd = datetime(curdate.year, self.birthday.birthday.month, self.birthday.birthday.day).date()
+        days_to_birthday =  (self.next_bd - curdate).days
+        if days_to_birthday < 0:
+            self.next_bd.year +=1
+            days_to_birthday += 365
+        return days_to_birthday
 
 
         
@@ -79,18 +94,25 @@ class AddressBook(UserDict):
         if self.data[name].find_phone(phone):
             self.data[name].delete_phone(phone)
     
+    def __iter__(self):
+        self.counter = 0
+        return self
     
-
+    def __next__(self, N):
+        if self.counter >= N: 
+            raise StopIteration
+        else:
+            self.counter += 1
+            return next(iter(self.data))
         
-
-   
-
-    
-    
-    
+    def iterator(self, N):
+        return next(self, N)
  
 memory = AddressBook()          
 
+def get_birthday(name):
+    name = name[1:]
+    return memory[name].days_to_birthday()
 
 def say_hello(): 
     return 'How can I help you?'
@@ -118,7 +140,11 @@ def add_new_user(command: str):
         raise ValueError('Name must be a text, not number')
     if not name_phone[1].isdecimal():
         raise ValueError('Numbers-only phones are allowed')
-    new_user = Record(name_phone[0])
+    if len(name_phone)>2:
+        new_user = Record(name_phone[0], name_phone[2])
+    else:
+        new_user = Record(name_phone[0])
+
     if new_user.name.value in memory:
         raise ValueError(f'This name already exists.\nType "phone {name_phone[0]}" to see the number linked to it.')    
     else:        
@@ -197,7 +223,8 @@ COMMANDS_DICT = {
     'show all': get_database,
     'clear': clear_user,
     'delete': delete_user,
-    'del phone': delete_phone
+    'del phone': delete_phone,
+    'bd': get_birthday
 }
 
 
