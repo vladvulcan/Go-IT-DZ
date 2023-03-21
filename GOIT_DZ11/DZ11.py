@@ -39,11 +39,16 @@ class Birthday(Field):
         self.birthday = datetime.strptime(birthday,"%Y-%m-%d").date()
 
 class Record:
-    def __init__(self, name, birthday = None):
+    def __init__(self, name, phone = None, birthday = None):
         self.name = Name(name)
         self.phones = []
+        if phone:
+            self.add_phone(phone)
         if birthday:
             self.birthday = Birthday(birthday)
+
+    def __repr__(self):
+        return f'{self.name.value}, phones: {", ".join([phone.value for phone in self.phones])}'
 
     def add_phone(self, phone): 
        self.phones.append(Phone(phone))
@@ -93,22 +98,30 @@ class AddressBook(UserDict):
     def delete_phone(self, name, phone):
         if self.data[name].find_phone(phone):
             self.data[name].delete_phone(phone)
-    
-    def __iter__(self):
-        self.counter = 0
-        return self
-    
-    def __next__(self, N):
-        if self.counter >= N: 
-            raise StopIteration
-        else:
-            self.counter += 1
-            return next(iter(self.data))
-        
-    def iterator(self, N):
-        return next(self, N)
+
+
+    def iterator(self, num_iterations=5):        
+        result = []
+        i = 0
+
+        for record in self.data.values():
+            result.append(record)
+            i += 1
+
+            if i == num_iterations:
+                yield result
+                result = []
+                i = 0
+
+        if result:
+            yield result
+            
+
+
  
-memory = AddressBook()          
+# memory = AddressBook({'v': Record('v','1'), 'b': Record('b','2'), 'p': Record('p','3')})  
+memory = AddressBook()        
+# memory = AddressBook({'v': Record('v','1','1996-07-12')})
 
 def get_birthday(name):
     name = name[1:]
@@ -135,22 +148,25 @@ def show_help():
 
 @input_error
 def add_new_user(command: str):
-    name_phone = command[1:].split()
-    if not name_phone[0].isalpha():
-        raise ValueError('Name must be a text, not number')
-    if not name_phone[1].isdecimal():
-        raise ValueError('Numbers-only phones are allowed')
-    if len(name_phone)>2:
-        new_user = Record(name_phone[0], name_phone[2])
+    userdata = command[1:].split()    
+    # if not name.isalpha():
+    #     raise ValueError('Name must be a text, not number')
+    # if not phone.isdecimal():
+    #     raise ValueError('Numbers-only phones are allowed')
+    if len(userdata) ==3:
+        name, phone, bd = userdata[0], userdata[1], userdata[2]
+        new_user = Record(name, phone, bd)
+    elif len(userdata) ==2:
+        name, phone = userdata[0], userdata[1]
+        new_user = Record(name, phone)
     else:
-        new_user = Record(name_phone[0])
+        raise IndexError
 
     if new_user.name.value in memory:
-        raise ValueError(f'This name already exists.\nType "phone {name_phone[0]}" to see the number linked to it.')    
-    else:        
-        new_user.add_phone(name_phone[1])    
+        raise ValueError(f'This name already exists.\nType "phone {userdata[0]}" to see the number linked to it.')    
+    else:       
         memory.add_record(new_user)
-    message = f'Added to memory: Name - {name_phone[0]}, phone - {name_phone[1]}'
+    message = f'Added to memory: Name - {userdata[0]}, phone - {userdata[1]}'
     return message
     
 @input_error
@@ -181,11 +197,16 @@ def get_users_phone(command: str):
     return memory.get_phones(name)
 
 @input_error
-def get_database():
-    contacts = ''
-    for key, value in memory.data.items():
-         contacts += f'{key} : {value.phones} \n'
-    return contacts
+def get_database(cmd):
+    num_iterations = cmd[1:]
+    if num_iterations == 'all':
+        return [i for i in memory.data.values()]
+
+    else:
+        num_iterations = int(num_iterations)        
+        for res in memory.iterator(num_iterations):
+            return res
+
 
 @input_error
 def delete_user(command: str):
@@ -220,7 +241,7 @@ COMMANDS_DICT = {
     'add': add_new_user,
     'change': update_user,
     'phone': get_users_phone,
-    'show all': get_database,
+    'show': get_database,
     'clear': clear_user,
     'delete': delete_user,
     'del phone': delete_phone,
