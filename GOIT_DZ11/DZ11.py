@@ -1,5 +1,6 @@
 from collections import UserDict
-from datetime import datetime
+from datetime import datetime, timedelta
+import re
 
 def input_error(func):
     def inner(*args, **kwargs):
@@ -16,7 +17,7 @@ def input_error(func):
         except IndexError:
             return 'Name is given, but phone number is not'
         
-        # except TypeError:
+        except TypeError:
             return "Give me name and phone please"
 
     return inner
@@ -24,7 +25,16 @@ def input_error(func):
 
 class Field:
     def __init__(self, value):
+        self._value = None
         self.value = value
+
+    @property
+    def value(self):
+        return self._value
+    
+    @value.setter
+    def value(self, new_value):
+        self._value = new_value
 
 
 class Name(Field):
@@ -32,11 +42,24 @@ class Name(Field):
 
 
 class Phone(Field):
-    pass
+
+    @Field.value.setter
+    def value(self, new_phone):
+        pattern = r"\+\d{3}-\d{3}-\d{2}-\d{2}"
+        if not re.match(pattern, new_phone):
+            raise ValueError('The phone must be in +111-222-33-44 format')
+        self._value = new_phone
+
 
 class Birthday(Field):
-    def __init__(self, birthday):
-        self.birthday = datetime.strptime(birthday,"%Y-%m-%d").date()
+    
+    @Field.value.setter
+    def value(self, birthday):
+        try:
+            self._value = datetime.strptime(birthday, '%Y-%m-%d').date()
+        except ValueError:
+            raise ValueError("Invalid birthdate format. The date needs to be in YYYY-mm-dd format")
+
 
 class Record:
     def __init__(self, name, phone = None, birthday = None):
@@ -52,6 +75,7 @@ class Record:
 
     def add_phone(self, phone): 
        self.phones.append(Phone(phone))
+       
 
     def clear_phones(self): 
         self.phones.clear()
@@ -69,10 +93,12 @@ class Record:
     
     def days_to_birthday(self):
         curdate = datetime.today().date()
-        self.next_bd = datetime(curdate.year, self.birthday.birthday.month, self.birthday.birthday.day).date()
+        next_birthday_year = curdate.year
+        self.next_bd = datetime(next_birthday_year, self.birthday.value.month, self.birthday.value.day).date()
         days_to_birthday =  (self.next_bd - curdate).days
         if days_to_birthday < 0:
-            self.next_bd.year +=1
+            next_birthday_year += 1
+            self.next_bd = datetime(next_birthday_year, self.birthday.value.month, self.birthday.value.day).date()
             days_to_birthday += 365
         return days_to_birthday
 
@@ -120,12 +146,16 @@ class AddressBook(UserDict):
 
  
 # memory = AddressBook({'v': Record('v','1'), 'b': Record('b','2'), 'p': Record('p','3')})  
-memory = AddressBook()        
-# memory = AddressBook({'v': Record('v','1','1996-07-12')})
+# memory = AddressBook()        
+memory = AddressBook({'v': Record('v','+111-222-33-44','1996-03-12')})
+
+def calculate_days_to_birthday(name):
+    name = name[1:]
+    return memory[name].days_to_birthday()
 
 def get_birthday(name):
     name = name[1:]
-    return memory[name].days_to_birthday()
+    return memory[name].birthday.value
 
 def say_hello(): 
     return 'How can I help you?'
@@ -245,7 +275,8 @@ COMMANDS_DICT = {
     'clear': clear_user,
     'delete': delete_user,
     'del phone': delete_phone,
-    'bd': get_birthday
+    'bd': calculate_days_to_birthday,
+    'date': get_birthday
 }
 
 
