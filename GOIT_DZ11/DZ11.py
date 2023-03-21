@@ -38,7 +38,13 @@ class Field:
 
 
 class Name(Field):
-    pass
+
+    @Field.value.setter
+    def value(self, name):        
+        if not name.isalpha():
+            raise ValueError('Name must be a text, not number')
+        self._value = name
+
 
 
 class Phone(Field):
@@ -113,7 +119,10 @@ class AddressBook(UserDict):
        self.data[name].add_phone(phone)
 
     def get_phones(self,name):
-        return self.data[name].phones
+        ph = []
+        for phone in self.data[name].phones:
+            ph.append(phone.value)
+        return ph
     
     def remove_record(self, name):
         del self.data[name]
@@ -145,8 +154,7 @@ class AddressBook(UserDict):
 
 
  
-# memory = AddressBook({'v': Record('v','1'), 'b': Record('b','2'), 'p': Record('p','3')})  
-# memory = AddressBook()        
+   
 memory = AddressBook({'v': Record('v','+111-222-33-44','1996-03-12')})
 
 def calculate_days_to_birthday(name):
@@ -178,11 +186,7 @@ def show_help():
 
 @input_error
 def add_new_user(command: str):
-    userdata = command[1:].split()    
-    # if not name.isalpha():
-    #     raise ValueError('Name must be a text, not number')
-    # if not phone.isdecimal():
-    #     raise ValueError('Numbers-only phones are allowed')
+    userdata = command[1:].split()
     if len(userdata) ==3:
         name, phone, bd = userdata[0], userdata[1], userdata[2]
         new_user = Record(name, phone, bd)
@@ -202,9 +206,7 @@ def add_new_user(command: str):
 @input_error
 def update_user(command: str):
     name_phone = command[1:].split()
-    name, new_phone_number = name_phone[0], name_phone[1]
-    if not new_phone_number.isdecimal():
-        raise ValueError('Numbers-only phones are allowed')
+    name, new_phone_number = name_phone[0], name_phone[1]    
     memory.update_record(name, new_phone_number)
     message = f'Changed in memory: Name - {name}, new phone - {new_phone_number}'
     return message
