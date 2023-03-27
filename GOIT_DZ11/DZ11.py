@@ -86,16 +86,16 @@ class Record:
     def clear_phones(self): 
         self.phones.clear()
 
-    def delete_phone(self, phone):
-        for x in self.phones:
-            if x.value == phone:
-                self.phones.remove(x)
+    def delete_phone(self, phone_num):
+        for phone_class in self.phones:
+            if phone_class.value == phone_num:
+                self.phones.remove(phone_class)
                 return True
         return False
 
-    def find_phone(self, phone):
-        for i in self.phones:
-            return True if i.value == phone else False
+    def find_phone(self, phone_num):
+        return any(phone_class.value == phone_num for phone_class in self.phones)
+
     
     def days_to_birthday(self):
         curdate = datetime.today().date()
@@ -119,10 +119,7 @@ class AddressBook(UserDict):
        self.data[name].add_phone(phone)
 
     def get_phones(self,name):
-        ph = []
-        for phone in self.data[name].phones:
-            ph.append(phone.value)
-        return ph
+        return [phone.value for phone in self.data[name].phones]
     
     def remove_record(self, name):
         del self.data[name]
