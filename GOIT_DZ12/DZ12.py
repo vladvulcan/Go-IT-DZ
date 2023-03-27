@@ -1,6 +1,8 @@
 from collections import UserDict
 from datetime import datetime, timedelta
 import re
+import pickle
+
 
 def input_error(func):
     def inner(*args, **kwargs):
@@ -44,7 +46,6 @@ class Name(Field):
         if not name.isalpha():
             raise ValueError('Name must be a text, not number')
         self._value = name
-
 
 
 class Phone(Field):
@@ -105,9 +106,7 @@ class Record:
             self.next_bd = datetime(next_birthday_year, self.birthday.value.month, self.birthday.value.day).date()
             days_to_birthday += 365
         return days_to_birthday
-
-
-        
+       
 
 class AddressBook(UserDict):
     def add_record(self, record: Record):
@@ -147,11 +146,17 @@ class AddressBook(UserDict):
         if result:
             yield result
             
-
+def read_from_backup():
+    backup_file = r'GOIT_DZ12\backup.bin'
+    with open(backup_file, "rb") as bf:
+        memory = pickle.load(bf)
+        return memory
 
  
-   
-memory = AddressBook({'v': Record('v','+111-222-33-44','1996-03-12')})
+try:
+    memory = read_from_backup()
+except EOFError:
+    memory = AddressBook({'v': Record('v','+111-222-33-44','1996-03-12')})
 
 def calculate_days_to_birthday(name):
     name = name[1:]
@@ -166,6 +171,13 @@ def say_hello():
 
 def say_goodbye():
     return 'Good bye!'
+
+
+def save_and_exit():
+    backup_file = r'GOIT_DZ12\backup.bin'
+    with open(backup_file, 'wb') as bf:
+        pickle.dump(memory, bf)
+    return say_goodbye()
 
 def show_help():
     help = '''
@@ -254,18 +266,13 @@ def delete_phone(command: str):
     memory.delete_phone(name, phone_number)
     return "Phone deleted successfully"
 
-
-    
-
-
-
 COMMANDS_DICT = {
     'help': show_help,
     'hello': say_hello,
-    'exit': say_goodbye,
-    'close': say_goodbye,
-    'good bye': say_goodbye,
-    'stop': say_goodbye,
+    'exit': save_and_exit,
+    'close': save_and_exit,
+    'goodbye': save_and_exit,
+    'stop': save_and_exit,
     'add': add_new_user,
     'change': update_user,
     'phone': get_users_phone,
@@ -292,9 +299,10 @@ def parser(user_input: str):
                 return action()
     error_message = 'Invalid command. Try again.\nFor the list of available commands type "help"'
     return error_message
-                
 
-def main():
+
+
+def main():     
     while True:
         user_input = input('enter command: ')
         if user_input == '.':
@@ -310,4 +318,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-    
