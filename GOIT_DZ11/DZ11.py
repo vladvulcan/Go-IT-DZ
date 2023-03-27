@@ -86,15 +86,13 @@ class Record:
     def clear_phones(self): 
         self.phones.clear()
 
-    def delete_phone(self, phone_num):
-        for phone_class in self.phones:
-            if phone_class.value == phone_num:
-                self.phones.remove(phone_class)
-                return True
-        return False
+    def delete_phone(self, index):
+        self.phones.pop(index)
 
-    def find_phone(self, phone_num):
-        return any(phone_class.value == phone_num for phone_class in self.phones)
+    def find_phone(self, phone):
+        index = next((i for i, p in enumerate(self.phones) if p.value == phone), -1)
+        return index >= 0, index
+
 
     
     def days_to_birthday(self):
@@ -128,8 +126,9 @@ class AddressBook(UserDict):
         self.data[name].clear_phones()
 
     def delete_phone(self, name, phone):
-        if self.data[name].find_phone(phone):
-            self.data[name].delete_phone(phone)
+        number, index = self.data[name].find_phone(phone)
+        if number:
+            self.data[name].delete_phone(index)
 
 
     def iterator(self, num_iterations=5):        
