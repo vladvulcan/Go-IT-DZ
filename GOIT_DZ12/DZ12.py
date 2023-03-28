@@ -162,9 +162,11 @@ except FileNotFoundError:
     memory = AddressBook({'Vova': Record('Vova','+111-222-33-44','1996-03-12')})
 
 def calculate_days_to_birthday(name):
+    name = name[1:]
     return memory[name].days_to_birthday()
 
 def get_birthday(name):
+    name = name[1:]
     return memory[name].birthday.value
 
 def say_hello(): 
@@ -202,7 +204,7 @@ def show_help():
 
 @input_error
 def add_new_user(command: str):
-    userdata = command.split()
+    userdata = command[1:].split()
     if len(userdata) ==3:
         name, phone, bd = userdata[0], userdata[1], userdata[2]
         new_user = Record(name, phone, bd)
@@ -221,14 +223,15 @@ def add_new_user(command: str):
     
 @input_error
 def update_user(command: str):
-    name_phone = command.split()
+    name_phone = command[1:].split()
     name, new_phone_number = name_phone[0], name_phone[1]    
     memory.update_record(name, new_phone_number)
     message = f'Changed in memory: Name - {name}, new phone - {new_phone_number}'
     return message
 
 @input_error
-def clear_user(name: str):
+def clear_user(command: str):
+    name = command[1:]
     confirm = input(f'This will delete all the phones for existing user {name}. Proceed? (Y/N)\n')
     if confirm.lower() == 'y':
         memory.clear_phones(name)
@@ -239,11 +242,13 @@ def clear_user(name: str):
 
 
 @input_error
-def get_users_phone(name: str):
+def get_users_phone(command: str):
+    name = command[1:]
     return memory.get_phones(name)
 
 @input_error
-def get_database(num_iterations):
+def get_database(cmd):
+    num_iterations = cmd[1:]
     if num_iterations == 'all':
         return [i for i in memory.data.values()]
 
@@ -254,7 +259,8 @@ def get_database(num_iterations):
 
 
 @input_error
-def delete_user(name: str):
+def delete_user(command: str):
+    name = command[1:]
     confirm = input(f'This will delete the user {name}. Proceed? (Y/N)\n')
     if confirm.lower() == 'y':
         memory.remove_record(name)
@@ -266,12 +272,13 @@ def delete_user(name: str):
 
 @input_error
 def delete_phone(command: str):
-    name_phone = command.split()
+    name_phone = command[1:].split()
     name, phone_number = name_phone[0], name_phone[1]
     memory.delete_phone(name, phone_number)
     return "Phone deleted successfully"
 
-def search(query: str):
+def search(cmd: str):
+    query = cmd[1:]
     results = []
     for record in memory.values():
         if query in record.name.value:
@@ -313,7 +320,7 @@ def parser(user_input: str):
     for key in COMMANDS_DICT:
         if user_input.lower().startswith(key):
             action = command_selector(key)
-            data = user_input.removeprefix(f'{key} ')
+            data = user_input.lower().removeprefix(key)
             if data:
                 return action(data)
             else:
