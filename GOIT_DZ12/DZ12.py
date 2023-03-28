@@ -286,11 +286,9 @@ def search(cmd: str):
             continue
         if record.search_in_phones(query):
             results.append(record)
-        
-    if results:
-        return results
-    else: 
-        return 'Nothing is found'
+        else: 
+            return 'Nothing is found'
+    return results
 
 
 COMMANDS_DICT = {
@@ -320,7 +318,7 @@ def parser(user_input: str):
     for key in COMMANDS_DICT:
         if user_input.lower().startswith(key):
             action = command_selector(key)
-            data = user_input.lower().removeprefix(key)
+            data = user_input.removeprefix(key)
             if data:
                 return action(data)
             else:
