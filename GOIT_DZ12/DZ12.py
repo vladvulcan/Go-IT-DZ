@@ -93,8 +93,6 @@ class Record:
     def find_phone(self, phone):
         index = next((i for i, p in enumerate(self.phones) if p.value == phone), -1)
         return index >= 0, index
-
-
     
     def days_to_birthday(self):
         curdate = datetime.today().date()
@@ -106,6 +104,11 @@ class Record:
             self.next_bd = datetime(next_birthday_year, self.birthday.value.month, self.birthday.value.day).date()
             days_to_birthday += 365
         return days_to_birthday
+    
+    def search_in_phones(self, query):
+        for phone_obj in self.phones:
+            return query in phone_obj.value
+
        
 
 class AddressBook(UserDict):
@@ -155,8 +158,8 @@ def read_from_backup():
  
 try:
     memory = read_from_backup()
-except EOFError:
-    memory = AddressBook({'v': Record('v','+111-222-33-44','1996-03-12')})
+except FileNotFoundError:
+    memory = AddressBook({'Vova': Record('Vova','+111-222-33-44','1996-03-12')})
 
 def calculate_days_to_birthday(name):
     name = name[1:]
@@ -183,11 +186,18 @@ def show_help():
     help = '''
 Список доступных команд:
 "hello" - бот отвечает "How can I help you?"
-"add ..." -   бот сохраняет в памяти новый контакт. Вместо ... введите имя и номер телефона через пробел.
-"change ..." - бот сохраняет в памяти новый номер телефона для существующего контакта. Вместо ... введите имя и номер телефона.
-"phone ..." - бот выводит в консоль номер телефона для указанного контакта. Вместо ... введите имя пользователя через пробел.
-"show all" - бот выводит все сохраненные контакты с номерами телефонов в консоль в формате "Имя: телефон".
-"goodbye", "close", "exit" - бот пишет "Good bye!" и завершает свою работу.
+"add [username] [phone] [birthday]" - бот сохраняет в памяти новый контакт. Ввведите имя и номер телефона в формате +111-222-33-44 через пробел, так же можно ввести день рождения в формате YYYY-mm-dd;
+"change [username] [phone]" - бот добавляет в память новый номер телефона для существующего контакта [username].;
+"phone [username]" - бот выводит все номера телефонов для указанного контакта. Вместо [username] введите имя пользователя;
+"show all" - бот выводит все сохраненные контакты с их номерами телефонов в консоль в формате "Имя, телефоны: ";
+"show 1" - бот выводит 1й сохраненный в памяти контакт. Чем больше число, тем больше контактов выдаст бот. Используйте это вместо show all, если хотите получить только часть адресной книги;
+"goodbye", "close", "exit, stop" - бот сохраняет все данные в файл бэкапа, пишет "Good bye!" и завершает свою работу;
+"clear [username]" - бот удаляет все телефоны у пользователя, чье имя идёт после слова clear. Действие необратимо и требует подтверждения;
+"delete [username]" - бот удаляет из памяти все данные о пользователе, чье имя идёт после слова delete. Действие необратимо и требует подтверждения;
+"del phone [username] [phone]" - бот удаляет конкретный телефон у конкретного пользователя;
+"date [username]" - бот выводит день рождения пользователя [username];
+"bd [username]" - бот выводит количество дней до ближайшего дня рождения пользователя [username];
+"search [query]" - бот ищет совпадения со строкой [query] в адресной книге и выводит всех пользователей, чье имя или телефон совпали с запросом поиска;
 '''
     return help
 
@@ -259,12 +269,27 @@ def delete_user(command: str):
         message = "Action is aborted"
     return message
 
+
 @input_error
 def delete_phone(command: str):
     name_phone = command[1:].split()
     name, phone_number = name_phone[0], name_phone[1]
     memory.delete_phone(name, phone_number)
     return "Phone deleted successfully"
+
+def search(cmd: str):
+    query = cmd[1:]
+    results = []
+    for record in memory.values():
+        if query in record.name.value:
+            results.append(record)
+            continue
+        if record.search_in_phones(query):
+            results.append(record)
+        else: 
+            return 'Nothing is found'
+    return results
+
 
 COMMANDS_DICT = {
     'help': show_help,
@@ -281,7 +306,8 @@ COMMANDS_DICT = {
     'delete': delete_user,
     'del phone': delete_phone,
     'bd': calculate_days_to_birthday,
-    'date': get_birthday
+    'date': get_birthday,
+    'search': search
 }
 
 
@@ -299,6 +325,7 @@ def parser(user_input: str):
                 return action()
     error_message = 'Invalid command. Try again.\nFor the list of available commands type "help"'
     return error_message
+
 
 
 
