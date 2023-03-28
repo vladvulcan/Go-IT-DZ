@@ -286,9 +286,11 @@ def search(cmd: str):
             continue
         if record.search_in_phones(query):
             results.append(record)
-        else: 
+                
+    if results:
+        return results
+    else: 
             return 'Nothing is found'
-    return results
 
 
 COMMANDS_DICT = {
