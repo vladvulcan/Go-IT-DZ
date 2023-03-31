@@ -4,7 +4,7 @@ import sys
 unknown_ext = set()
 known_ext = set()
 x = sys.argv[1]
-files_by_ext = {'images':[],'video':[],'documents':[],'music':[],'archives':[]}
+files_by_ext = {'images':[],'video':[],'documents':[],'music':[],'archives':[], 'torrents':[], 'apps':[]}
 CYRILLIC_SYMBOLS = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяєіїґ"
 TRANSLATION = ("a", "b", "v", "g", "d", "e", "e", "j", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u",
             "f", "h", "ts", "ch", "sh", "sch", "", "y", "'", "e", "yu", "ya", "je", "i", "ji", "g")
@@ -26,7 +26,7 @@ def sort_trash(folder):
 
     for f in target.iterdir():
         if f.is_dir():
-            if f.name.casefold() in 'archives, video, audio, documents, images':
+            if f.name.casefold() in 'archives, video, audio, documents, images, torrents, apps':
                 continue
             elif not any(f.iterdir()):
                 f.rmdir()
@@ -52,7 +52,7 @@ def sort_files_by_extensions(file, target, folder):
     ext = file.suffix
     ext = ext.upper()
     dst = ''
-    if ext in ['.ZIP', '.GZ', '.TAR', '.RAR', '.7Z']:
+    if ext in ['.ZIP', '.GZ', '.TAR', '.RAR']:
         dst = 'archives'
         known_ext.add(ext)
         files_by_ext[dst].append(file.name)
@@ -65,14 +65,18 @@ def sort_files_by_extensions(file, target, folder):
         shutil.move(subfolder, dst_dir)
         file.unlink(missing_ok=True)
     else:
-        if ext in ['.JPEG', '.PNG', '.JPG', '.SVG']:
+        if ext in ['.JPEG', '.PNG', '.JPG', '.SVG', 'WEBP']:
             dst = 'images'
         elif ext in ['.AVI', '.MP4', '.MOV', '.MKV']:
             dst = 'video'
         elif ext in ['.DOC', '.DOCX', '.TXT', '.PDF', '.XLS', '.XLSX', '.PPTX']:
             dst = 'documents'
         elif ext in ['.MP3', '.OGG', '.WAV', '.AMR', '.M4A']:
-            dst = 'music'
+            dst = 'music',
+        elif ext == '.TORRENT':
+            dst = 'torrents'
+        elif ext == '.EXE':
+            dst = 'apps'
         else:
             unknown_ext.add(ext)
             pass
