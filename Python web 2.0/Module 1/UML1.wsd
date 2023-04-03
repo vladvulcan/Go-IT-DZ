@@ -1,0 +1,90 @@
+@startuml UML1
+
+class Field {
+  - _value
+  + value()
+  + value(new_value)
+}
+
+class Name {
+  + value(name)
+}
+
+class Phone {
+  + value(new_phone)
+}
+
+class Birthday {
+  + value(birthday)
+}
+
+class Record {
+  - name : Name
+  - phones : list[Phone]
+  - birthday : Birthday
+  + add_phone(phone)
+  + clear_phones()
+  + delete_phone(index)
+  + find_phone(phone)
+  + days_to_birthday()
+  + search_in_phones(query)
+}
+
+class AddressBook {
+  - data : dict[str, Record]
+  + add_record(record: Record)
+  + update_record(name, phone)
+  + get_phones(name)
+  + remove_record(name)
+  + clear_phones(name)
+  + delete_phone(name, phone)
+  + iterator(num_iterations)
+}
+
+class UserDict {
+  # data : dict
+}
+
+class datetime {
+  + today()
+}
+
+class timedelta {}
+
+class re {}
+
+class pickle {}
+
+class KeyError {}
+
+class ValueError {}
+
+class IndexError {}
+
+class TypeError {}
+
+class collections.UserDict {}
+
+Field <|-- Name
+Field <|-- Phone
+Field <|-- Birthday
+
+Record *-- Phone : contains
+AddressBook *-- Record : contains
+
+UserDict <|-- AddressBook
+
+AddressBook o-- Record : manages
+
+Main --> AddressBook
+Main --> datetime
+Main --> timedelta
+Main --> re
+Main --> pickle
+Main --> KeyError
+Main --> ValueError
+Main --> IndexError
+Main --> TypeError
+Main --> collections.UserDict
+
+@enduml
