@@ -1,90 +1,65 @@
-@startuml UML1
+@startuml
 
 class Field {
-  - _value
-  + value()
-  + value(new_value)
+    -_value: object
+    +value: object
+    {abstract} +value(value: object): void
 }
 
 class Name {
-  + value(name)
+    +value(name: str): void
 }
 
 class Phone {
-  + value(new_phone)
+    +value(new_phone: str): void
 }
 
 class Birthday {
-  + value(birthday)
+    +value(birthday: str): void
 }
 
 class Record {
-  - name : Name
-  - phones : list[Phone]
-  - birthday : Birthday
-  + add_phone(phone)
-  + clear_phones()
-  + delete_phone(index)
-  + find_phone(phone)
-  + days_to_birthday()
-  + search_in_phones(query)
+    -name: Name
+    -phones: List[Phone]
+    -birthday: Birthday
+    +__init__(name: str, phone: Optional[str] = None, birthday: Optional[str] = None)
+    +__repr__(): str
+    +add_phone(phone: str): None
+    +clear_phones(): None
+    +delete_phone(index: int): None
+    +find_phone(phone: str) -> Tuple[bool, int]
+    +days_to_birthday() -> int
+    +search_in_phones(query: str) -> str
 }
 
 class AddressBook {
-  - data : dict[str, Record]
-  + add_record(record: Record)
-  + update_record(name, phone)
-  + get_phones(name)
-  + remove_record(name)
-  + clear_phones(name)
-  + delete_phone(name, phone)
-  + iterator(num_iterations)
+    -data: Dict[str, Record]
+    +add_record(record: Record): None
+    +update_record(name: str, phone: str): None
+    +get_phones(name: str) -> List[str]
+    +remove_record(name: str): None
+    +clear_phones(name: str): None
+    +delete_phone(name: str, phone: str): None
+    +iterator(num_iterations: int = 5) -> Iterator[List[Record]]
 }
 
-class UserDict {
-  # data : dict
+class Bot {
+    -memory: AddressBook
+    +__init__()
+    +input_error(func: Callable) -> Callable
+    +calculate_days_to_birthday(name: str) -> int
+    +get_birthday(name: str) -> datetime.date
+    +say_hello() -> str
+    +say_goodbye() -> str
+    +save_and_exit() -> str
+    +show_help() -> str
 }
 
-class datetime {
-  + today()
-}
-
-class timedelta {}
-
-class re {}
-
-class pickle {}
-
-class KeyError {}
-
-class ValueError {}
-
-class IndexError {}
-
-class TypeError {}
-
-class collections.UserDict {}
-
-Field <|-- Name
-Field <|-- Phone
-Field <|-- Birthday
-
-Record *-- Phone : contains
-AddressBook *-- Record : contains
-
-UserDict <|-- AddressBook
-
-AddressBook o-- Record : manages
-
-Main --> AddressBook
-Main --> datetime
-Main --> timedelta
-Main --> re
-Main --> pickle
-Main --> KeyError
-Main --> ValueError
-Main --> IndexError
-Main --> TypeError
-Main --> collections.UserDict
+Bot o-- AddressBook
+AddressBook o-- Record
+Record --|> Field
+Name --|> Field
+Phone --|> Field
+Birthday --|> Field
 
 @enduml
