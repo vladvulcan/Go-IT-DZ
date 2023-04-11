@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "console bot"
+version = "5.0"
+description = "Console bot working with command line interface allowing to work with an addressbook and its contacts"
+authors = ["WildRider07 <sidvulk@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
